@@ -10,19 +10,19 @@ load_dotenv.load_dotenv()
 
 def database_manager():
     # Создаем новую базу данных для работы с проектом
-    try:
-        conn = psycopg2.connect(
-            host="localhost", user="postgres", password=os.getenv("PASSWORD_BD"), client_encoding="UTF-8"
-        )
-        with conn.cursor() as cursor:
-
-            conn.autocommit = True
-            cursor.execute("CREATE DATABASE vacancy_hh")
-
-        conn.close()
-
-    finally:
-        pass
+    # try:
+    #     conn = psycopg2.connect(
+    #         host="localhost", user="postgres", password=os.getenv("PASSWORD_BD"), client_encoding="UTF-8"
+    #     )
+    #     with conn.cursor() as cursor:
+    #
+    #         conn.autocommit = True
+    #         cursor.execute("CREATE DATABASE vacancy_hh")
+    #
+    #     conn.close()
+    #
+    # finally:
+    #     pass
 
     # Получаем данные по вакансиям чере апи запрос
     data_hh = api_hh()
@@ -34,30 +34,30 @@ def database_manager():
 
     # Создаем таблицы
 
-    with psycopg2.connect(
-        host="localhost",
-        database="vacancy_hh",
-        user="postgres",
-        password=os.getenv("PASSWORD_BD"),
-        client_encoding="utf-8",
-    ) as conn:
-
-        with conn.cursor() as cursor:
-
-            cursor.execute(
-                "CREATE TABLE employers(employer_id int PRIMARY KEY NOT NULL, "
-                "company_name varchar(255), "
-                "url varchar(255)); "
-            )
-            cursor.execute(
-                "CREATE TABLE vacancies(vacancy_id int PRIMARY KEY NOT NULL, "
-                "vacancy_name varchar(255), "
-                "vacancy_salary int, "
-                "salary_currency varchar(3), "
-                "vacancy_url varchar(255), "
-                "vacancy_description varchar(255), "
-                "employer_id int REFERENCES employers(employer_id))"
-            )
+    # with psycopg2.connect(
+    #     host="localhost",
+    #     database="vacancy_hh",
+    #     user="postgres",
+    #     password=os.getenv("PASSWORD_BD"),
+    #     client_encoding="utf-8",
+    # ) as conn:
+    #
+    #     with conn.cursor() as cursor:
+    #
+    #         cursor.execute(
+    #             "CREATE TABLE employers(employer_id int PRIMARY KEY NOT NULL, "
+    #             "company_name varchar(255), "
+    #             "url varchar(255)); "
+    #         )
+    #         cursor.execute(
+    #             "CREATE TABLE vacancies(vacancy_id int PRIMARY KEY NOT NULL, "
+    #             "vacancy_name varchar(255), "
+    #             "vacancy_salary int, "
+    #             "salary_currency varchar(3), "
+    #             "vacancy_url varchar(255), "
+    #             "vacancy_description varchar(255), "
+    #             "employer_id int REFERENCES employers(employer_id))"
+    #         )
 
     # Заполняем таблицы данными
 
@@ -84,7 +84,7 @@ def database_manager():
             with conn.cursor() as cur:
                 for data in data_vacancies:
                     cur.execute(
-                        "INSERT INTO vacancies(vacancy_id, vacancy_name, vacancy_salary, salary_currency,vacancy_url, vacancy_description ) VALUES ( %s, %s, %s, %s, %s, %s)",
+                        "INSERT INTO vacancies(vacancy_id, vacancy_name, vacancy_salary, salary_currency,vacancy_url, vacancy_description, employer_id) VALUES ( %s, %s, %s, %s, %s, %s, %s)",
                         (
                             data["id"],
                             data["vacancy_name"],
@@ -92,6 +92,7 @@ def database_manager():
                             data["salary_currency"],
                             data["vacancy_url"],
                             data["vacancy_description"],
+                            data["employer_id"]
                         ),
                     )
 

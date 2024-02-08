@@ -1,3 +1,4 @@
+import pprint
 from typing import Any
 
 import requests
@@ -47,17 +48,18 @@ def get_list_vacancies_api(list_data: list[dict]) -> list[dict]:
     :return list_dict_vacancies list[dict]"""
 
     list_dict_vacancies = []
-    i = 0
+
 
     for vacancy in list_data:
-        i += 1
+
         dictionary = {
-            "id": i,
+            "id": vacancy["id"],
             "vacancy_name": vacancy["name"],
             "vacancy_salary": dict_to_integer(vacancy["salary"]),
             "salary_currency": dict_to_currency(vacancy["salary"]),
             "vacancy_url": vacancy["url"],
             "vacancy_description": vacancy["snippet"]["requirement"],
+            "employer_id": vacancy["employer"]["id"]
         }
         list_dict_vacancies.append(dictionary)
     return list_dict_vacancies
@@ -73,10 +75,10 @@ def get_list_company_api(list_data: list[dict]) -> list[dict]:
     :return list_dict_company list[dict]"""
 
     list_dict_company = []
-    i = 0
+
     for vacancy in list_data:
-        i += 1
-        dictionary = {"id": i, "company_name": vacancy["employer"]["name"], "company_url": vacancy["employer"]["url"]}
+
+        dictionary = {"id": vacancy["employer"]["id"], "company_name": vacancy["employer"]["name"], "company_url": vacancy["employer"]["url"]}
         list_dict_company.append(dictionary)
     return list_dict_company
 
