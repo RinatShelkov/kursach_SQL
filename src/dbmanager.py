@@ -1,4 +1,6 @@
 import os
+import pprint
+import re
 
 import load_dotenv
 import psycopg2
@@ -26,11 +28,11 @@ class DBManager:
 
     def get_all_vacancies(self):
         """Получает список всех вакансий с указанием названия компании,
-        названия вакансии и зарплаты и ссылки на вакансию"""
+        названия вакансии и зарплаты и ссылки на вакансию, описание"""
         try:
             with self.conn.cursor() as cursor:
                 cursor.execute(
-                    "SELECT vacancy_name, vacancy_salary, salary_currency, vacancy_url, employers.company_name FROM vacancies LEFT JOIN employers USING(employer_id)"
+                    "SELECT vacancy_name, vacancy_salary, salary_currency, vacancy_url, vacancy_description, employers.company_name FROM vacancies LEFT JOIN employers USING(employer_id)"
                 )
                 return cursor.fetchall()
         finally:
@@ -76,3 +78,20 @@ class DBManager:
             elif (row[2] == "KZT") and (avg_salary[1] != 0) and (row[1] >= avg_salary[1]):
                 list_above_average.append(row)
         return list_above_average
+
+    def get_vacancies_with_keyword(self, keyword):
+
+        """Получает список всех вакансий, в названии которых содержатся переданные в метод слова, например python"""
+
+        list_search_vacancies = []
+        for row in self.get_all_vacancies():
+            if row[0] is not None:
+                if (re.search(keyword, row[0], flags=re.IGNORECASE)):
+                        list_search_vacancies.append(row)
+            elif row[4] is not None:
+                if (re.search(keyword, row[4], flags=re.IGNORECASE)):
+                        list_search_vacancies.append(row)
+        return list_search_vacancies
+
+
+pprint.pprint(DBManager('vacancy_hh').get_vacancies_with_keyword("аналитик"))
