@@ -1,0 +1,37 @@
+[tool.poetry]
+name = "kursachsql"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+requests = "^2.31.0"
+black = "^24.1.1"
+psycopg2 = "^2.9.9"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+# максимальная длина строки
+line-length = 119
+# файлы, которые не нужно форматировать
+exclude = '''
+(
+  /(
+      \.eggs         # исключить несколько общих каталогов в
+    | \.git          # корне проекта
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | dist
+  )/
+  | foo.py           # также отдельно исключить файл с именем foo.py в
+                     # корне проекта
+)
+'''
