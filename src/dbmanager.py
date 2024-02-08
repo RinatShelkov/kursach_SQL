@@ -1,5 +1,4 @@
 import os
-import pprint
 import re
 
 import load_dotenv
@@ -80,18 +79,18 @@ class DBManager:
         return list_above_average
 
     def get_vacancies_with_keyword(self, keyword):
-
         """Получает список всех вакансий, в названии которых содержатся переданные в метод слова, например python"""
 
         list_search_vacancies = []
         for row in self.get_all_vacancies():
             if row[0] is not None:
-                if (re.search(keyword, row[0], flags=re.IGNORECASE)):
-                        list_search_vacancies.append(row)
+                if re.search(keyword, row[0], flags=re.IGNORECASE):
+                    list_search_vacancies.append(row)
             elif row[4] is not None:
-                if (re.search(keyword, row[4], flags=re.IGNORECASE)):
-                        list_search_vacancies.append(row)
-        return list_search_vacancies
+                if re.search(keyword, row[4], flags=re.IGNORECASE):
+                    list_search_vacancies.append(row)
 
-
-pprint.pprint(DBManager('vacancy_hh').get_vacancies_with_keyword("аналитик"))
+        if len(list_search_vacancies) == 0:
+            return "Вакансий с таким словом нет"
+        else:
+            return list_search_vacancies

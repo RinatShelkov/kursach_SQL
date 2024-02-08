@@ -1,4 +1,3 @@
-import pprint
 from typing import Any
 
 import requests
@@ -49,9 +48,7 @@ def get_list_vacancies_api(list_data: list[dict]) -> list[dict]:
 
     list_dict_vacancies = []
 
-
     for vacancy in list_data:
-
         dictionary = {
             "id": vacancy["id"],
             "vacancy_name": vacancy["name"],
@@ -59,7 +56,7 @@ def get_list_vacancies_api(list_data: list[dict]) -> list[dict]:
             "salary_currency": dict_to_currency(vacancy["salary"]),
             "vacancy_url": vacancy["url"],
             "vacancy_description": vacancy["snippet"]["requirement"],
-            "employer_id": vacancy["employer"]["id"]
+            "employer_id": vacancy["employer"]["id"],
         }
         list_dict_vacancies.append(dictionary)
     return list_dict_vacancies
@@ -77,8 +74,11 @@ def get_list_company_api(list_data: list[dict]) -> list[dict]:
     list_dict_company = []
 
     for vacancy in list_data:
-
-        dictionary = {"id": vacancy["employer"]["id"], "company_name": vacancy["employer"]["name"], "company_url": vacancy["employer"]["url"]}
+        dictionary = {
+            "id": vacancy["employer"]["id"],
+            "company_name": vacancy["employer"]["name"],
+            "company_url": vacancy["employer"]["url"],
+        }
         list_dict_company.append(dictionary)
     return list_dict_company
 
@@ -111,3 +111,32 @@ def dict_to_currency(dictionary: dict | None) -> str | int:
     for key, value in dictionary.items():
         if key == "currency" and value is not None:
             return value
+
+
+def salary_to_string(salary: int) -> str | int:
+    """Преобразование нуля в заработной плате в понятную строку для пользователя, если заработная плата не указана"""
+    if salary == 0:
+        return "не указана"
+    else:
+        return salary
+
+
+def currency_to_string(currency: int | str) -> str | int:
+    """Преобразование нуля в валюте  в понятную строку для пользователя, если валюта не указана"""
+
+    if currency == "0":
+        return "не указана"
+    else:
+        if currency == "RUR":
+            return "Российский рубль"
+        else:
+            return "Казахстанский тенге"
+
+
+def null_description(description: None | str) -> str:
+    """Преобразование None в строку понятную для пользователя, при отсутствии описания"""
+
+    if description is None:
+        return "не указано"
+    else:
+        return description
