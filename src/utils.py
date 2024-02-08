@@ -1,4 +1,3 @@
-import pprint
 from typing import Any
 
 import requests
@@ -22,10 +21,10 @@ def api_hh() -> Any:
     :return list[dictionary]"""
 
     try:
-        response = requests.get("https://api.hh.ru/vacancies?",
-                                params={"employer_id": (1740, 3529, 87021, 78638, 824486, 3388, 92972, 3776, 414, 2180),
-                                        "per_page": 100}
-                                )
+        response = requests.get(
+            "https://api.hh.ru/vacancies?",
+            params={"employer_id": (1740, 3529, 87021, 78638, 824486, 3388, 92972, 3776, 414, 2180), "per_page": 100},
+        )
         response.raise_for_status()
         data = response.json()
 
@@ -35,32 +34,51 @@ def api_hh() -> Any:
     return data["items"]
 
 
-def get_list_vacancies_api(list_vacancies: list[dict]) -> list[dict]:
+def get_list_vacancies_api(list_data: list[dict]) -> list[dict]:
     """Функция выборки нужной информации из АПИ запроса
     возвращает словарь с данными:
-    - название компании,
     - названии вакансии,
     - заработную плату,
     - валюта заработной платы,
     - ссылка на вакансию,
     - краткое описание
 
-    :param list_vacancies: list[dict]
+    :param list_data: list[dict]
     :return list_dict_vacancies list[dict]"""
 
     list_dict_vacancies = []
+    i = 0
 
-    for vacancy in list_vacancies:
+    for vacancy in list_data:
+        i += 1
         dictionary = {
-            "company_name": vacancy["employer"]["name"],
+            "id": i,
             "vacancy_name": vacancy["name"],
             "vacancy_salary": dict_to_integer(vacancy["salary"]),
             "salary_currency": dict_to_currency(vacancy["salary"]),
             "vacancy_url": vacancy["url"],
-            "vacancy_description": vacancy["snippet"]["requirement"]
+            "vacancy_description": vacancy["snippet"]["requirement"],
         }
         list_dict_vacancies.append(dictionary)
     return list_dict_vacancies
+
+
+def get_list_company_api(list_data: list[dict]) -> list[dict]:
+    """Функция выборки нужной информации из АПИ запроса
+    возвращает словарь с данными:
+    - название компании,
+    - ссылка на компанию
+
+    :param list_data: list[dict]
+    :return list_dict_company list[dict]"""
+
+    list_dict_company = []
+    i = 0
+    for vacancy in list_data:
+        i += 1
+        dictionary = {"id": i, "company_name": vacancy["employer"]["name"], "company_url": vacancy["employer"]["url"]}
+        list_dict_company.append(dictionary)
+    return list_dict_company
 
 
 def dict_to_integer(dictionary: dict | None) -> int:
@@ -91,21 +109,3 @@ def dict_to_currency(dictionary: dict | None) -> str | int:
     for key, value in dictionary.items():
         if key == "currency" and value is not None:
             return value
-
-
-def get_all_values(list_dict: list[dict]) -> list[tuple]:
-    """Функция преобразования списка словарей в список кортежей dict.values,
-    для записи данных в БД
-
-    :param list_dict: list[dict]
-    :return list[tuple]"""
-
-    result_list_turple = []
-
-    for dictionary in list_dict:
-        values = dictionary.values()
-        turple_values = tuple(values)
-        result_list_turple.append(turple_values)
-
-    return result_list_turple
-
