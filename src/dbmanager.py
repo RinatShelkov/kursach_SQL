@@ -15,7 +15,9 @@ class DBManager:
         )
 
     def get_companies_and_vacancies_count(self):
+
         """Получает список всех компаний и количество вакансий у каждой компании"""
+
         try:
             with self.conn.cursor() as cursor:
                 cursor.execute(
@@ -38,7 +40,9 @@ class DBManager:
             self.conn.close()
 
     def get_avg_salary(self):
+
         """Получает среднюю зарплату по вакансиям"""
+
         try:
             with self.conn.cursor() as cursor:
                 cursor.execute("SELECT vacancy_salary, salary_currency FROM vacancies")
@@ -63,6 +67,7 @@ class DBManager:
             self.conn.close()
 
     def get_vacancies_with_higher_salary(self):
+
         """Получает список всех вакансий, у которых зарплата выше средней по всем вакансиям"""
 
         avg_salary = self.get_avg_salary()
@@ -79,6 +84,7 @@ class DBManager:
         return list_above_average
 
     def get_vacancies_with_keyword(self, keyword):
+
         """Получает список всех вакансий, в названии которых содержатся переданные в метод слова, например python"""
 
         list_search_vacancies = []
