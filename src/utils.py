@@ -99,7 +99,7 @@ def create_database(name_database: str, params: dict) -> None:
     :param name_database - название базы данных
     :param params - параметры необходымые для поделючения к БД"""
 
-    conn = psycopg2.connect(dbname='postgres', **params)
+    conn = psycopg2.connect(dbname="postgres", **params)
     conn.autocommit = True
     cur = conn.cursor()
 
