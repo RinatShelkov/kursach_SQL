@@ -1,6 +1,5 @@
 from typing import Any
-import dotenv
-import os
+
 import psycopg2
 import requests
 
@@ -34,55 +33,6 @@ def api_hh() -> Any:
         return f"Ошибка запроса requests.get -> {err}"
 
     return data["items"]
-
-
-def get_list_vacancies_api(list_data: list[dict]) -> list[dict]:
-    """Функция выборки нужной информации из АПИ запроса
-    возвращает словарь с данными:
-    - названии вакансии,
-    - заработную плату,
-    - валюта заработной платы,
-    - ссылка на вакансию,
-    - краткое описание
-
-    :param list_data: list[dict]
-    :return list_dict_vacancies list[dict]"""
-
-    list_dict_vacancies = []
-
-    for vacancy in list_data:
-        dictionary = {
-            "id": vacancy["id"],
-            "vacancy_name": vacancy["name"],
-            "vacancy_salary": dict_to_integer(vacancy["salary"]),
-            "salary_currency": dict_to_currency(vacancy["salary"]),
-            "vacancy_url": vacancy["url"],
-            "vacancy_description": vacancy["snippet"]["requirement"],
-            "employer_id": vacancy["employer"]["id"],
-        }
-        list_dict_vacancies.append(dictionary)
-    return list_dict_vacancies
-
-
-def get_list_company_api(list_data: list[dict]) -> list[dict]:
-    """Функция выборки нужной информации из АПИ запроса
-    возвращает словарь с данными:
-    - название компании,
-    - ссылка на компанию
-
-    :param list_data: list[dict]
-    :return list_dict_company list[dict]"""
-
-    list_dict_company = []
-
-    for vacancy in list_data:
-        dictionary = {
-            "id": vacancy["employer"]["id"],
-            "company_name": vacancy["employer"]["name"],
-            "company_url": vacancy["employer"]["url"],
-        }
-        list_dict_company.append(dictionary)
-    return list_dict_company
 
 
 def dict_to_integer(dictionary: dict | None) -> int:
@@ -143,12 +93,13 @@ def null_description(description: None | str) -> str:
     else:
         return description
 
-def create_database(name_database:str, params:dict)->None:
+
+def create_database(name_database: str, params: dict) -> None:
     """Функция создания базы данных и таблиц
     :param name_database - название базы данных
     :param params - параметры необходымые для поделючения к БД"""
 
-    conn = psycopg2.connect(dbname=name_database, **params)
+    conn = psycopg2.connect(dbname='postgres', **params)
     conn.autocommit = True
     cur = conn.cursor()
 
@@ -158,7 +109,7 @@ def create_database(name_database:str, params:dict)->None:
     cur.close()
     conn.close()
 
-    conn = psycopg2.connect(dbname = name_database, **params)
+    conn = psycopg2.connect(dbname=name_database, **params)
     with conn.cursor() as cursor:
         cursor.execute(
             "CREATE TABLE employers(employer_id int PRIMARY KEY NOT NULL, "
@@ -177,3 +128,32 @@ def create_database(name_database:str, params:dict)->None:
     conn.commit()
     conn.close()
 
+
+def save_data_to_database(data_bd: list[dict[str, Any]], name_database: str, params: dict) -> None:
+    """Функция записи данных в таблицы БД
+    :param data_bd-данные для записи в таблицы
+    :param name_database название БД куда будет записываться
+    :param params - параметры необходымые для поделючения к БД
+    """
+    conn = psycopg2.connect(dbname=name_database, **params)
+    with conn.cursor() as cur:
+        for data in data_bd:
+            cur.execute(
+                "INSERT INTO employers(employer_id, company_name, url) VALUES ( %s, %s, %s) ON CONFLICT DO NOTHING",
+                (data["employer"]["id"], data["employer"]["name"], data["employer"]["url"]),
+            )
+
+            cur.execute(
+                "INSERT INTO vacancies(vacancy_id, vacancy_name, vacancy_salary, salary_currency,vacancy_url, vacancy_description, employer_id) VALUES ( %s, %s, %s, %s, %s, %s, %s)",
+                (
+                    data["id"],
+                    data["name"],
+                    dict_to_integer(data["salary"]),
+                    dict_to_currency(data["salary"]),
+                    data["url"],
+                    data["snippet"]["requirement"],
+                    data["employer"]["id"],
+                ),
+            )
+    conn.commit()
+    conn.close()
