@@ -1,5 +1,7 @@
 from typing import Any
-
+import dotenv
+import os
+import psycopg2
 import requests
 
 
@@ -140,3 +142,38 @@ def null_description(description: None | str) -> str:
         return "не указано"
     else:
         return description
+
+def create_database(name_database:str, params:dict)->None:
+    """Функция создания базы данных и таблиц
+    :param name_database - название базы данных
+    :param params - параметры необходымые для поделючения к БД"""
+
+    conn = psycopg2.connect(dbname=name_database, **params)
+    conn.autocommit = True
+    cur = conn.cursor()
+
+    cur.execute(f"DROP DATABASE {name_database}")
+    cur.execute(f"CREATE DATABASE {name_database}")
+
+    cur.close()
+    conn.close()
+
+    conn = psycopg2.connect(dbname = name_database, **params)
+    with conn.cursor() as cursor:
+        cursor.execute(
+            "CREATE TABLE employers(employer_id int PRIMARY KEY NOT NULL, "
+            "company_name varchar(255), "
+            "url varchar(255)); "
+        )
+        cursor.execute(
+            "CREATE TABLE vacancies(vacancy_id int PRIMARY KEY NOT NULL, "
+            "vacancy_name varchar(255), "
+            "vacancy_salary int, "
+            "salary_currency varchar(3), "
+            "vacancy_url varchar(255), "
+            "vacancy_description varchar(255), "
+            "employer_id int REFERENCES employers(employer_id))"
+        )
+    conn.commit()
+    conn.close()
+
