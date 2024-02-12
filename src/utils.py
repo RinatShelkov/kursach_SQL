@@ -103,7 +103,7 @@ def create_database(name_database: str, params: dict) -> None:
     conn.autocommit = True
     cur = conn.cursor()
 
-    cur.execute(f"DROP DATABASE {name_database}")
+    cur.execute(f"DROP DATABASE IF EXISTS {name_database}")
     cur.execute(f"CREATE DATABASE {name_database}")
 
     cur.close()

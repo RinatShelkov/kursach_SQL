@@ -1,18 +1,15 @@
-import os
 import re
 
-import load_dotenv
 import psycopg2
 
-load_dotenv.load_dotenv()
+from config import config
 
 
 class DBManager:
     def __init__(self, database):
         self.database = database
-        self.conn = psycopg2.connect(
-            host="localhost", database=database, user="postgres", password=os.getenv("PASSWORD_BD")
-        )
+
+        self.conn = psycopg2.connect(dbname=self.database, **config())
 
     def get_companies_and_vacancies_count(self):
         """Получает список всех компаний и количество вакансий у каждой компании"""

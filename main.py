@@ -36,12 +36,15 @@ def database_manager():
 
     choice = int(input(f"Введите номер операции\n"))
 
+    # Создаем экземпляр класса DBManager для дальнейшей работы с методами класса
+    dbmanager = DBManager("vacancy_hh")
+
     if choice == 1:
-        for row in DBManager("vacancy_hh").get_companies_and_vacancies_count():
+        for row in dbmanager.get_companies_and_vacancies_count():
             print(f"{row[0]} - {row[1]} вакансий")
 
     elif choice == 2:
-        for row in DBManager("vacancy_hh").get_all_vacancies():
+        for row in dbmanager.get_all_vacancies():
             print(
                 (
                     f"""Компания - {row[5]}, 
@@ -53,7 +56,7 @@ def database_manager():
             )
 
     elif choice == 3:
-        avg_salary = DBManager("vacancy_hh").get_avg_salary()
+        avg_salary = dbmanager.get_avg_salary()
         print(
             f"""Средняя заработная плата по вакансиям:
 в рублях {avg_salary[0]}
@@ -61,7 +64,7 @@ def database_manager():
         )
 
     elif choice == 4:
-        for row in DBManager("vacancy_hh").get_vacancies_with_higher_salary():
+        for row in dbmanager.get_vacancies_with_higher_salary():
             print(
                 (
                     f"""Компания - {row[5]}, 
@@ -74,7 +77,7 @@ def database_manager():
 
     elif choice == 5:
         keyword = input("Введите ключевое слово:")
-        list_search_keyword = DBManager("vacancy_hh").get_vacancies_with_keyword(keyword)
+        list_search_keyword = dbmanager.get_vacancies_with_keyword(keyword)
         if isinstance(list_search_keyword, str):
             return list_search_keyword
         else:
